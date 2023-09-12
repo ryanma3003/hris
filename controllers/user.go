@@ -67,7 +67,7 @@ func Login(c *gin.Context) {
 
 	// Look up req user
 	var user models.User
-	db.DB.First(&user, "id = ?", body.Username)
+	db.DB.First(&user, "username = ?", body.Username)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -119,5 +119,7 @@ func Validate(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Successfully logged out",
+	})
 }

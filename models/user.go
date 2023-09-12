@@ -4,8 +4,9 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	Username   string   `gorm:"unique" json:"username"`
-	EmployeeId string   `json:"employeeid"`
-	Employee   Employee `gorm:"references:EmployeeId"`
-	Password   string   `json:"password"`
+	Username string `gorm:"unique" json:"username"`
+	Role     string `json:"role"`
+	// EmployeeId string   `json:"employeeid"`
+	// Employee   Employee `gorm:"references:EmployeeId"`
+	Password string `json:"password"`
 }

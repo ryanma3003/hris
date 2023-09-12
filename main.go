@@ -27,11 +27,13 @@ func main() {
 		v1.POST("/login", controllers.Login)
 		v1.GET("/validate", middleware.Authorize("resource", "read", db.Adapter), controllers.Validate)
 
-		servers.InitializeRoutesEmployee(v1.Group("employee"))
+		servers.InitializeRoutesEmployee(v1.Group("main"))
 		servers.InitializeRoutesMpp(v1.Group("mpp"))
 		servers.InitializeRoutesCompliance(v1.Group("compliance"))
 		servers.InitializeRoutesService(v1.Group("service"))
 		servers.InitializeRoutesPerformance(v1.Group("performance"))
+
+		v1.POST("/logout", controllers.Logout)
 	}
 
 	router.Run()

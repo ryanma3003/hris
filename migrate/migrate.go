@@ -11,5 +11,14 @@ func init() {
 }
 
 func main() {
-	db.DB.AutoMigrate(&models.Grade{}, &models.Employee{}, &models.User{})
+	db.DB.AutoMigrate(
+		&models.Grade{},
+		&models.JobDescription{},
+		&models.Level{},
+		&models.Division{},
+		&models.Department{},
+		&models.Supervision{},
+		&models.Employee{},
+		&models.User{},
+	)
 }
