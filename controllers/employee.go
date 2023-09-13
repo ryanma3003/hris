@@ -39,6 +39,7 @@ func EmployeeCreate(c *gin.Context) {
 	// Create
 	employee := models.Employee{
 		Name:             body.Name,
+		EmployeeId:       body.EmployeeId,
 		Email:            body.Email,
 		GradeId:          body.GradeId,
 		DivisionID:       body.DivisionID,
@@ -95,7 +96,7 @@ func EmployeeCreate(c *gin.Context) {
 		username = emailString[:at]
 	}
 
-	user := models.User{Username: username, Password: string(hash), Role: "user"}
+	user := models.User{Username: username, Password: string(hash), Role: "user", EmployeeId: body.EmployeeId}
 	resUser := db.DB.Create(&user)
 
 	if resUser.Error != nil {
@@ -137,10 +138,8 @@ func EmployeeUpdate(c *gin.Context) {
 	// Get data body
 	var body models.Employee
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

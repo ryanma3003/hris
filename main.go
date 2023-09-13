@@ -12,6 +12,7 @@ import (
 func init() {
 	db.LoadEnvVariables()
 	db.ConnectToDB()
+	db.CasbinAdapter()
 }
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 	{
 		v1.POST("/signup", controllers.Signup)
 		v1.POST("/login", controllers.Login)
-		v1.GET("/validate", middleware.Authorize("resource", "read", db.Adapter), controllers.Validate)
+		v1.GET("/validate", middleware.Authorize("resource", "*", db.Adapter), controllers.Validate)
 
 		servers.InitializeRoutesEmployee(v1.Group("main"))
 		servers.InitializeRoutesMpp(v1.Group("mpp"))

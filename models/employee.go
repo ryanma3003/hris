@@ -8,7 +8,7 @@ import (
 
 type Employee struct {
 	gorm.Model
-	EmployeeId       string         `json:"employeeid" gorm:"unique"`
+	EmployeeId       int64          `json:"employeeid" gorm:"unique"`
 	Name             string         `json:"name"`
 	Email            string         `json:"email" gorm:"unique"`
 	GradeId          int            `json:"gradeid"`
