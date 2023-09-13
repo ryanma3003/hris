@@ -28,10 +28,8 @@ func DepartmentIndex(c *gin.Context) {
 func DepartmentCreate(c *gin.Context) {
 	var body models.Department
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -78,10 +76,8 @@ func DepartmentUpdate(c *gin.Context) {
 	// Get data body
 	var body models.Department
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

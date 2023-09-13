@@ -28,10 +28,8 @@ func SupervisionIndex(c *gin.Context) {
 func SupervisionCreate(c *gin.Context) {
 	var body models.Supervision
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -78,10 +76,8 @@ func SupervisionUpdate(c *gin.Context) {
 	// Get data body
 	var body models.Supervision
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

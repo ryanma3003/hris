@@ -28,10 +28,8 @@ func JobDescriptionIndex(c *gin.Context) {
 func JobDescriptionCreate(c *gin.Context) {
 	var body models.JobDescription
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -78,10 +76,8 @@ func JobDescriptionUpdate(c *gin.Context) {
 	// Get data body
 	var body models.JobDescription
 
-	if c.ShouldBindJSON(&body) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Failed to read body",
-		})
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

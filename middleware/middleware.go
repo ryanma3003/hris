@@ -48,8 +48,19 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 				c.AbortWithStatus(http.StatusUnauthorized)
 			}
 
+			// Attach to req
+			c.Set("user", user.Username)
+			c.Set("uid", user.ID)
+			c.Set("urole", user.Role)
+
+			val, existed := c.Get("user")
+			if !existed {
+				c.AbortWithStatusJSON(401, "user hasn't logged in yet")
+				return
+			}
+
 			// casbin enforces policy
-			ok, err := enforce(user.Username, obj, act, adapter)
+			ok, err := enforce(val.(string), obj, act, adapter)
 			if err != nil {
 				c.AbortWithStatusJSON(500, "error occurred when authorizing user")
 				return
@@ -58,9 +69,6 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 				c.AbortWithStatusJSON(403, "forbidden")
 				return
 			}
-
-			// Attach to req
-			c.Set("user", user)
 
 			// Continue
 			c.Next()
@@ -71,7 +79,7 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 }
 
 func enforce(sub string, obj string, act string, adapter *gormadapter.Adapter) (bool, error) {
-	enforcer, err := casbin.NewEnforcer("config/model.conf", adapter)
+	enforcer, err := casbin.NewEnforcer("config/rbac_model.conf", adapter)
 	if err != nil {
 		return false, fmt.Errorf("failed to create casbin enforcer %w", err)
 	}
