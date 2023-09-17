@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func GradeIndex(c *gin.Context) {
-	var grades []models.Grade
-	err := db.DB.Find(&grades).Error
+func EvaluationFormIndex(c *gin.Context) {
+	var evalforms []models.EvaluationForm
+	err := db.DB.Find(&evalforms).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -21,12 +21,12 @@ func GradeIndex(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": grades,
+		"data": evalforms,
 	})
 }
 
-func GradeCreate(c *gin.Context) {
-	var body models.Grade
+func EvaluationFormCreate(c *gin.Context) {
+	var body models.EvaluationForm
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -34,8 +34,7 @@ func GradeCreate(c *gin.Context) {
 	}
 
 	// Create
-	grade := models.Grade{Grade: body.Grade, Min: body.Min, Max: body.Max, Struktur: body.Struktur}
-	result := db.DB.Create(&grade)
+	result := db.DB.Create(&body)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -50,11 +49,11 @@ func GradeCreate(c *gin.Context) {
 	})
 }
 
-func GradeShow(c *gin.Context) {
+func EvaluationFormShow(c *gin.Context) {
 	id := c.Param("id")
 
-	var grade models.Grade
-	err := db.DB.First(&grade, "ID = ?", id).Error
+	var evalform models.EvaluationForm
+	err := db.DB.First(&evalform, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)
@@ -65,16 +64,16 @@ func GradeShow(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": grade,
+		"data": evalform,
 	})
 }
 
-func GradeUpdate(c *gin.Context) {
+func EvaluationFormUpdate(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
 
 	// Get data body
-	var body models.Grade
+	var body models.EvaluationForm
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -82,8 +81,8 @@ func GradeUpdate(c *gin.Context) {
 	}
 
 	// Find the data
-	var grade models.Grade
-	err := db.DB.First(&grade, "ID = ?", id).Error
+	var evalform models.EvaluationForm
+	err := db.DB.First(&evalform, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)
@@ -94,26 +93,21 @@ func GradeUpdate(c *gin.Context) {
 	}
 
 	// Update
-	db.DB.Model(&grade).Updates(models.Grade{
-		Grade:    body.Grade,
-		Min:      body.Min,
-		Max:      body.Max,
-		Struktur: body.Struktur,
-	})
+	db.DB.Model(&evalform).Updates(&body)
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": grade,
+		"data": evalform,
 	})
 }
 
-func GradeDelete(c *gin.Context) {
+func EvaluationFormDelete(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
 
 	// Delete
-	var grade models.Grade
-	err := db.DB.Delete(&grade, "ID = ?", id).Error
+	var evalform models.EvaluationForm
+	err := db.DB.Delete(&evalform, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)

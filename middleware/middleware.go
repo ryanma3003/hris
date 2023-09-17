@@ -50,7 +50,7 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 
 			// Attach to req
 			c.Set("user", user.Username)
-			c.Set("uid", user.EmployeeId)
+			c.Set("uid", user.NikID)
 			c.Set("urole", user.Role)
 
 			val, existed := c.Get("user")
