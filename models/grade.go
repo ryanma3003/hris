@@ -4,10 +4,11 @@ import "gorm.io/gorm"
 
 type Grade struct {
 	gorm.Model
-	GradeId  int    `gorm:"unique" json:"gradeid"`
-	Min      int64  `json:"min"`
-	Max      int64  `json:"max"`
-	Struktur string `json:"struktur"`
+	Grade     int        `gorm:"unique" json:"grade"`
+	Min       int64      `json:"min"`
+	Max       int64      `json:"max"`
+	Struktur  string     `json:"struktur"`
+	Employees []Employee `gorm:"foreignKey:GradeId;references:Grade"`
 }
 
 type Increament struct {

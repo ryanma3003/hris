@@ -39,7 +39,7 @@ func EmployeeCreate(c *gin.Context) {
 	// Create
 	employee := models.Employee{
 		Name:             body.Name,
-		EmployeeId:       body.EmployeeId,
+		Nik:              body.Nik,
 		Email:            body.Email,
 		GradeId:          body.GradeId,
 		DivisionID:       body.DivisionID,
@@ -77,7 +77,7 @@ func EmployeeCreate(c *gin.Context) {
 	}
 
 	// Hash the password
-	dateString := body.Birthdate.Format("01-02-2006")
+	dateString := body.Birthdate
 	password := strings.Replace(dateString, "-", "", -1)
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 
@@ -96,7 +96,7 @@ func EmployeeCreate(c *gin.Context) {
 		username = emailString[:at]
 	}
 
-	user := models.User{Username: username, Password: string(hash), Role: "user", EmployeeId: body.EmployeeId}
+	user := models.User{Username: username, Password: string(hash), Role: "user", NikID: body.Nik}
 	resUser := db.DB.Create(&user)
 
 	if resUser.Error != nil {

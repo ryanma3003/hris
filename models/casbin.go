@@ -1,7 +1,7 @@
 package models
 
 type Casbin_rule struct {
-	Id     int64  `json:"id"`
+	Id     int64  `gorm:"primaryKey,autoIncrement,not null" json:"id"`
 	P_type string `json:"p_type"`
 	V0     string `json:"v0"`
 	V1     string `json:"v1"`
