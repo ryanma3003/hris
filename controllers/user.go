@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ryanma3003/hris/db"
@@ -67,7 +68,9 @@ func Login(c *gin.Context) {
 
 	// Look up req user
 	var user models.User
-	db.DB.First(&user, "username = ?", body.Username)
+
+	// db.DB.First(&user, "username = ?", body.Username)
+	db.DB.Preload("Role").Preload("Employee").First(&user, "username = ?", body.Username)
 
 	if user.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -106,7 +109,26 @@ func Login(c *gin.Context) {
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 	c.JSON(http.StatusOK, gin.H{
-		"token": tokenString,
+		"token":         tokenString,
+		"userData":      user,
+		"userAbilities": user.Role.Ability,
+	})
+}
+
+func GetFrontendPermission(c *gin.Context) {
+	visitor := c.Query("subject")
+	// `e` is an initialized instance of Casbin Enforcer
+	perm, err := casbin.CasbinJsGetPermissionForUser(db.Enforcer, visitor)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to check permissions",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": perm,
 	})
 }
 

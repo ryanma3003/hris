@@ -4,28 +4,35 @@ import "gorm.io/gorm"
 
 type SelfPerformance struct {
 	gorm.Model
-	NikID       int64    `json:"nikid"`
-	Employee    Employee `gorm:"foreignKey:NikID;references:Nik"`
+	EmployeeID  uint     `json:"employeeid"`
+	Employee    Employee `gorm:"constraint:OnUpdate:CASCADE,OnDelete: NO ACTION;"`
 	Listrespon  string   `json:"listrespone"`
 	Perfrespon  string   `json:"perfrespone"`
 	ListWorkobj string   `json:"listworkobj"`
 	PerfWorkobj string   `json:"perfworkobj"`
 	Corevalue   string   `json:"corevalue"`
 	Perfvalue   string   `json:"perfvalue"`
-	Team1       int64    `json:"team1"`
-	Teamsatu    Employee `gorm:"foreignKey:Team1;references:Nik"`
-	Team2       int64    `json:"team2"`
-	Teamdua     Employee `gorm:"foreignKey:Team2;references:Nik"`
-	Team3       int64    `json:"team3"`
-	Teamtiga    Employee `gorm:"foreignKey:Team3;references:Nik"`
-	Team4       int64    `json:"team4"`
-	Teamempat   Employee `gorm:"foreignKey:Team4;references:Nik"`
+	Team1       uint     `json:"team1"`
+	Teamsatu    Employee `gorm:"foreignKey:Team1"`
+	Team2       uint     `json:"team2"`
+	Teamdua     Employee `gorm:"foreignKey:Team2"`
+	Team3       uint     `json:"team3"`
+	Teamtiga    Employee `gorm:"foreignKey:Team3"`
+	Team4       uint     `json:"team4"`
+	Teamempat   Employee `gorm:"foreignKey:Team4"`
+}
+
+type EvaluationTemplate struct {
+	gorm.Model
+	Name            string            `json:"name"`
+	EvaluationForms []*EvaluationForm `gorm:"many2many:evtemplates_evforms;"`
 }
 
 type EvaluationForm struct {
 	gorm.Model
-	Name             string `json:"name"`
-	EvaluationPoints []EvaluationPoint
+	Name                string `json:"name"`
+	EvaluationPoints    []EvaluationPoint
+	EvaluationTemplates []*EvaluationTemplate `gorm:"many2many:evtemplates_evforms;"`
 }
 
 type EvaluationPoint struct {
@@ -38,10 +45,10 @@ type EvaluationPoint struct {
 
 type Evaluation struct {
 	gorm.Model
-	NikID             int64    `json:"nikid"`
-	Employee          Employee `gorm:"foreignKey:NikID;references:Nik"`
-	SubjectID         int64    `json:"subjectid"`
-	Subject           Employee `gorm:"foreignKey:SubjectID;references:Nik"`
+	EmployeeID        uint     `json:"employeeid"`
+	Employee          Employee `gorm:"constraint:OnUpdate:CASCADE,OnDelete: NO ACTION;"`
+	SubjectID         uint     `json:"subjectid"`
+	Subject           Employee `gorm:"foreignKey:SubjectID"`
 	Period            string   `json:"period"`
 	EvaluationResults []EvaluationResult
 }

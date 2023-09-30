@@ -103,7 +103,7 @@ func GradeUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": grade,
+		"message": "update success",
 	})
 }
 

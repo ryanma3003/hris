@@ -10,13 +10,9 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/ryanma3003/hris/db"
 	"github.com/ryanma3003/hris/models"
-
-	gormadapter "github.com/casbin/gorm-adapter/v3"
-
-	"github.com/casbin/casbin/v2"
 )
 
-func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.HandlerFunc {
+func Authorize(obj string, act string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get the cookie
 		tokenString, err := c.Cookie("Authorization")
@@ -50,7 +46,7 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 
 			// Attach to req
 			c.Set("user", user.Username)
-			c.Set("uid", user.NikID)
+			// c.Set("uid", user.NikID)
 			c.Set("urole", user.Role)
 
 			val, existed := c.Get("user")
@@ -60,7 +56,7 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 			}
 
 			// casbin enforces policy
-			ok, err := enforce(val.(string), obj, act, adapter)
+			ok, err := enforce(val.(string), obj, act)
 			if err != nil {
 				c.AbortWithStatusJSON(500, "error occurred when authorizing user")
 				return
@@ -78,17 +74,17 @@ func Authorize(obj string, act string, adapter *gormadapter.Adapter) gin.Handler
 	}
 }
 
-func enforce(sub string, obj string, act string, adapter *gormadapter.Adapter) (bool, error) {
-	enforcer, err := casbin.NewEnforcer("config/rbac_model.conf", adapter)
-	if err != nil {
-		return false, fmt.Errorf("failed to create casbin enforcer %w", err)
-	}
+func enforce(sub string, obj string, act string) (bool, error) {
+	// db.Enforcer, err := casbin.NewEnforcer("config/rbac_model.conf", adapter)
+	// if err != nil {
+	// 	return false, fmt.Errorf("failed to create casbin enforcer %w", err)
+	// }
 
-	err = enforcer.LoadPolicy()
+	err := db.Enforcer.LoadPolicy()
 	if err != nil {
 		return false, fmt.Errorf("failed to load policy from DB: %w", err)
 	}
 
-	ok, err := enforcer.Enforce(sub, obj, act)
+	ok, err := db.Enforcer.Enforce(sub, obj, act)
 	return ok, err
 }

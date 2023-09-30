@@ -6,20 +6,21 @@ import (
 
 type Employee struct {
 	gorm.Model
-	Nik              int64          `json:"nik" gorm:"unique;primaryKey;autoIncrement:false"`
+	Nik              int64          `json:"nik" gorm:"unique;"`
 	Name             string         `json:"name"`
+	Avatar           string         `json:"avatar"`
 	Email            string         `json:"email" gorm:"unique"`
 	GradeId          int            `json:"gradeid"`
 	Grade            Grade          `gorm:"foreginKey:GradeId;references:Grade"`
-	DivisionID       int            `json:"divisionid"`
+	DivisionID       uint           `json:"divisionid"`
 	Division         Division       `gorm:"foreignKey:DivisionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	DepartmentID     int            `json:"departmentid"`
+	DepartmentID     uint           `json:"departmentid"`
 	Department       Department     `gorm:"foreignKey:DepartmentID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	SupervisionID    int            `json:"supervisionid"`
+	SupervisionID    uint           `json:"supervisionid"`
 	Supervision      Supervision    `gorm:"foreignKey:SupervisionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	LevelID          int            `json:"levelid"`
+	LevelID          uint           `json:"levelid"`
 	Level            Level          `gorm:"foreignKey:LevelID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	JobDescriptionID int            `json:"jobdescriptionid"`
+	JobDescriptionID uint           `json:"jobdescriptionid"`
 	JobDescription   JobDescription `gorm:"foreignKey:JobDescriptionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Salary           float64        `json:"salary"`
 	Statusemployee   string         `json:"statusemployee"`
@@ -33,7 +34,7 @@ type Employee struct {
 	Npwp             string         `json:"npwp"`
 	Kis              string         `json:"kis"`
 	Kpj              string         `json:"kpj"`
-	PtkpID           int            `json:"ptkpid"`
+	PtkpID           uint           `json:"ptkpid"`
 	Ptkp             Ptkp           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Phone            string         `json:"phone"`
 	Birthplace       string         `json:"birthplace"`
@@ -60,6 +61,7 @@ type Ptkp struct {
 type Candidate struct {
 	gorm.Model
 	Name             string         `json:"nama"`
+	Avatar           string         `json:"avatar"`
 	JobDescriptionID int            `json:"jobdescriptionid"`
 	JobDescription   JobDescription `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Type             string         `json:"type"`

@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/ryanma3003/hris/db"
 	"github.com/ryanma3003/hris/models"
 	"golang.org/x/crypto/bcrypt"
@@ -14,7 +17,7 @@ import (
 
 func EmployeeIndex(c *gin.Context) {
 	var employees []models.Employee
-	err := db.DB.Find(&employees).Error
+	err := db.DB.Preload("Division").Preload("Department").Preload("Supervision").Preload("JobDescription").Preload("Level").Preload("Grade").Preload("Ptkp").Find(&employees).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -33,6 +36,18 @@ func EmployeeCreate(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	file, _ := c.FormFile("avatar")
+
+	ext := filepath.Ext(file.Filename)
+	newFileName := uuid.New().String() + ext
+
+	if err := c.SaveUploadedFile(file, "uploads/"+newFileName); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"message": "Unable to save the file",
+		})
 		return
 	}
 
@@ -57,7 +72,7 @@ func EmployeeCreate(c *gin.Context) {
 		Npwp:             body.Npwp,
 		Kis:              body.Kis,
 		Kpj:              body.Kpj,
-		Ptkp:             body.Ptkp,
+		PtkpID:           body.PtkpID,
 		Phone:            body.Phone,
 		Birthplace:       body.Birthplace,
 		Birthdate:        body.Birthdate,
@@ -90,13 +105,13 @@ func EmployeeCreate(c *gin.Context) {
 
 	// Create user
 	emailString := body.Email
-	username := "string"
+	var username string
 	at := strings.LastIndex(emailString, "@")
 	if at >= 0 {
 		username = emailString[:at]
 	}
 
-	user := models.User{Username: username, Password: string(hash), Role: "user", NikID: body.Nik}
+	user := models.User{Username: username, Password: string(hash), RoleID: 3, EmployeeID: employee.ID}
 	resUser := db.DB.Create(&user)
 
 	if resUser.Error != nil {
@@ -106,9 +121,11 @@ func EmployeeCreate(c *gin.Context) {
 		return
 	}
 
+	message := fmt.Sprintf("Employee created successfully, and user login is generated automatically with \n username: %s \n password: %s", username, password)
+
 	// Return
 	c.JSON(http.StatusOK, gin.H{
-		"message": "create success",
+		"message": message,
 	})
 }
 
