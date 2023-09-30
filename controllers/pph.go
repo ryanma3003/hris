@@ -10,9 +10,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func DepartmentIndex(c *gin.Context) {
-	var dep []models.Department
-	err := db.DB.Preload("Division").Find(&dep).Error
+func PphIndex(c *gin.Context) {
+	var pphs []models.Pph
+	err := db.DB.Find(&pphs).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -21,12 +21,12 @@ func DepartmentIndex(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": dep,
+		"data": pphs,
 	})
 }
 
-func DepartmentCreate(c *gin.Context) {
-	var body models.Department
+func PphCreate(c *gin.Context) {
+	var body models.Pph
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -34,8 +34,8 @@ func DepartmentCreate(c *gin.Context) {
 	}
 
 	// Create
-	dep := models.Department{Name: body.Name, DivisionID: body.DivisionID}
-	result := db.DB.Create(&dep)
+	pph := models.Pph{Value: body.Value, Percentage: body.Percentage}
+	result := db.DB.Create(&pph)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -50,11 +50,11 @@ func DepartmentCreate(c *gin.Context) {
 	})
 }
 
-func DepartmentShow(c *gin.Context) {
+func PphShow(c *gin.Context) {
 	id := c.Param("id")
 
-	var dep models.Department
-	err := db.DB.First(&dep, "ID = ?", id).Error
+	var pph models.Pph
+	err := db.DB.First(&pph, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)
@@ -65,16 +65,16 @@ func DepartmentShow(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": dep,
+		"data": pph,
 	})
 }
 
-func DepartmentUpdate(c *gin.Context) {
+func PphUpdate(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
 
 	// Get data body
-	var body models.Department
+	var body models.Pph
 
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -82,8 +82,8 @@ func DepartmentUpdate(c *gin.Context) {
 	}
 
 	// Find the data
-	var dep models.Department
-	err := db.DB.First(&dep, "ID = ?", id).Error
+	var pph models.Pph
+	err := db.DB.First(&pph, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)
@@ -94,9 +94,9 @@ func DepartmentUpdate(c *gin.Context) {
 	}
 
 	// Update
-	db.DB.Model(&dep).Updates(models.Department{
-		Name:       body.Name,
-		DivisionID: body.DivisionID,
+	db.DB.Model(&pph).Updates(models.Pph{
+		Value:      body.Value,
+		Percentage: body.Percentage,
 	})
 
 	// Respond
@@ -105,13 +105,13 @@ func DepartmentUpdate(c *gin.Context) {
 	})
 }
 
-func DepartmentDelete(c *gin.Context) {
+func PphDelete(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
 
 	// Delete
-	var dep models.Department
-	err := db.DB.Delete(&dep, "ID = ?", id).Error
+	var pph models.Pph
+	err := db.DB.Delete(&pph, "ID = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)

@@ -34,8 +34,8 @@ func DivisionCreate(c *gin.Context) {
 	}
 
 	// Create
-	div := models.Division{Name: body.Name}
-	result := db.DB.Create(&div)
+	// div := models.Division{Name: body.Name}
+	result := db.DB.Create(&body)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -100,7 +100,7 @@ func DivisionUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": div,
+		"message": "update success",
 	})
 }
 

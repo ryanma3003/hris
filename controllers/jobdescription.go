@@ -101,7 +101,7 @@ func JobDescriptionUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": jobdesc,
+		"message": "update success",
 	})
 }
 

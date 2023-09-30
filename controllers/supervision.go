@@ -12,7 +12,7 @@ import (
 
 func SupervisionIndex(c *gin.Context) {
 	var sup []models.Supervision
-	err := db.DB.Find(&sup).Error
+	err := db.DB.Preload("Division").Preload("Department").Find(&sup).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -102,7 +102,7 @@ func SupervisionUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": sup,
+		"message": "update success",
 	})
 }
 

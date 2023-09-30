@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/casbin/casbin/v2"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
@@ -13,6 +14,7 @@ import (
 
 var DB *gorm.DB
 var Adapter *gormadapter.Adapter
+var Enforcer *casbin.Enforcer
 
 func LoadEnvVariables() {
 	err := godotenv.Load()
@@ -37,5 +39,13 @@ func CasbinAdapter() {
 	Adapter, err = gormadapter.NewAdapterByDB(DB)
 	if err != nil {
 		panic(fmt.Sprintf("failed to initialize casbin adapter: %v", err))
+	}
+}
+
+func CasbinEnforcer() {
+	var err error
+	Enforcer, err = casbin.NewEnforcer("config/rbac_model.conf", Adapter)
+	if err != nil {
+		panic(fmt.Errorf("failed to create casbin enforcer %w", err))
 	}
 }

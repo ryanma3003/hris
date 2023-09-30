@@ -34,8 +34,7 @@ func LevelCreate(c *gin.Context) {
 	}
 
 	// Create
-	level := models.Level{Name: body.Name}
-	result := db.DB.Create(&level)
+	result := db.DB.Create(&body)
 
 	if result.Error != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -100,7 +99,7 @@ func LevelUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": level,
+		"message": "update success",
 	})
 }
 
