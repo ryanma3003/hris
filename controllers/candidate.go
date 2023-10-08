@@ -1,13 +1,6 @@
 package controllers
 
 import (
-<<<<<<< HEAD
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-	"github.com/ryanma3003/hris/db"
-	"github.com/ryanma3003/hris/models"
-=======
 	"errors"
 	"fmt"
 	"net/http"
@@ -20,7 +13,6 @@ import (
 	"github.com/ryanma3003/hris/db"
 	"github.com/ryanma3003/hris/models"
 	"gorm.io/gorm"
->>>>>>> f13f7b863e795beef5a9a954bafb384fb419b07d
 )
 
 func CandidateIndex(c *gin.Context) {
@@ -37,8 +29,6 @@ func CandidateIndex(c *gin.Context) {
 		"data": candidates,
 	})
 }
-<<<<<<< HEAD
-=======
 
 func CandidateCreate(c *gin.Context) {
 	// Get data req
@@ -275,4 +265,3 @@ func CandidateDelete(c *gin.Context) {
 		"message": "delete success",
 	})
 }
->>>>>>> f13f7b863e795beef5a9a954bafb384fb419b07d

@@ -1,10 +1,5 @@
 package servers
 
-<<<<<<< HEAD
-import "github.com/gin-gonic/gin"
-
-func InitializeRoutesService(g *gin.RouterGroup) {
-=======
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/ryanma3003/hris/controllers"
@@ -40,5 +35,4 @@ func InitializeRoutesService(g *gin.RouterGroup) {
 	g.POST("/create", controllers.CreateAsset)
 	g.PUT("/update/:id", controllers.AssetUpdate)
 	g.DELETE("/delete/:id", controllers.AssetDelete)
->>>>>>> f13f7b863e795beef5a9a954bafb384fb419b07d
 }
