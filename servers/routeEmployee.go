@@ -18,6 +18,10 @@ func InitializeRoutesEmployee(g *gin.RouterGroup) {
 		// role
 		g.GET("/roles", controllers.RoleIndex)
 
+		// upload avatar
+		g.PUT("/avatar/:id", controllers.UpdateAvatar)
+		g.GET("/avatar/:id", controllers.GetAvatar)
+
 		// grade
 		g.GET("/grades", controllers.GradeIndex)
 		g.POST("/grade", middleware.Authorize("resource", "*"), controllers.GradeCreate)
@@ -73,5 +77,54 @@ func InitializeRoutesEmployee(g *gin.RouterGroup) {
 		g.GET("/pph/:id", controllers.PphShow)
 		g.PUT("/pph/:id", middleware.Authorize("resource", "*"), controllers.PphUpdate)
 		g.DELETE("/pph/:id", middleware.Authorize("resource", "*"), controllers.PphDelete)
+
+		// family
+		g.GET("/familys", controllers.FamilyIndex)
+		g.POST("/family", controllers.FamilyCreate)
+		g.GET("/family/:id", controllers.FamilyShow)
+		g.PUT("/family/:id", controllers.FamilyEdit)
+		g.DELETE("/family/:id", controllers.FamilyDelete)
+
+		// education
+		g.GET("/educations", controllers.EducationIndex)
+		g.POST("/education", controllers.EducationCreate)
+		g.GET("/education/:id", controllers.EducationShow)
+		g.PUT("/education/:id", controllers.EducationEdit)
+		g.DELETE("/education/:id", controllers.EducationDelete)
+
+		// course
+		g.GET("/courses", controllers.CourseIndex)
+		g.POST("/course", controllers.CourseCreate)
+		g.GET("/course/:id", controllers.CourseShow)
+		g.PUT("/course/:id", controllers.CourseEdit)
+		g.DELETE("/course/:id", controllers.CourseDelete)
+
+		// health
+		g.GET("/healths", controllers.HealthDiseaseIndex)
+		g.POST("/health", controllers.HealthDiseaseCreate)
+		g.GET("/health/:id", controllers.HealthDiseaseShow)
+		g.PUT("/health/:id", controllers.HealthDiseaseEdit)
+		g.DELETE("/health/:id", controllers.HealthDiseaseDelete)
+
+		// criminal
+		g.GET("/criminals", controllers.CriminalNoteIndex)
+		g.POST("/criminal", controllers.CriminalNoteCreate)
+		g.GET("/criminal/:id", controllers.CriminalNoteShow)
+		g.PUT("/criminal/:id", controllers.CriminalNoteEdit)
+		g.DELETE("/criminal/:id", controllers.CriminalNoteDelete)
+
+		// experience
+		g.GET("/experiences", controllers.ExperienceIndex)
+		g.POST("/experience", controllers.ExperienceCreate)
+		g.GET("/experience/:id", controllers.ExperienceShow)
+		g.PUT("/experience/:id", controllers.ExperienceEdit)
+		g.DELETE("/experience/:id", controllers.ExperienceDelete)
+
+		// reference
+		g.GET("/references", controllers.ReferenceIndex)
+		g.POST("/reference", controllers.ReferenceCreate)
+		g.GET("/reference/:id", controllers.ReferenceShow)
+		g.PUT("/reference/:id", controllers.ReferenceEdit)
+		g.DELETE("/reference/:id", controllers.ReferenceDelete)
 	}
 }

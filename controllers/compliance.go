@@ -51,6 +51,7 @@ func CreateSalarySlipHeader(EmployeeID uint, Salary int) error {
 	return nil
 	//END INSERT HEADER
 }
+
 func CreateSalarySlipDetail(EmployeeID uint, Salary int, Ptkp int) error {
 
 	var Header models.SalarySlip
