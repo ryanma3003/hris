@@ -80,11 +80,11 @@ type Ptkp struct {
 
 type Candidate struct {
 	gorm.Model
-	Name             string         `json:"nama"`
+	Name             string         `json:"name"`
 	Avatar           string         `json:"avatar,omitempty"`
-	JobDescriptionID uint           `json:"jobdescriptionid"`
+	JobDescriptionID *uint          `json:"jobdescriptionid"`
 	JobDescription   JobDescription `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	ReqheadcountID   uint           `json:"reqheadcountid,omitempty"`
+	ReqheadcountID   *uint          `json:"reqheadcountid,omitempty"`
 	Reqheadcount     Reqheadcount   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Type             string         `json:"type"`
 	Email            string         `json:"email"`

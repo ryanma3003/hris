@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	"encoding/base64"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -17,7 +17,7 @@ import (
 
 func CandidateIndex(c *gin.Context) {
 	var candidates []models.Candidate
-	err := db.DB.Find(&candidates).Error
+	err := db.DB.Preload("JobDescription").Preload("Reqheadcount").Find(&candidates).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -36,13 +36,49 @@ func CandidateCreate(c *gin.Context) {
 	var body models.Candidate
 
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// decode
+	b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
+	imageData, err := base64.StdEncoding.DecodeString(b64data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// validation image file
+	fileType := http.DetectContentType(imageData)
+	if !strings.HasPrefix(fileType, "image/") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+		return
+	}
+
+	// extension & folder
+	fileExtension := strings.TrimPrefix(fileType, "image/")
+	uploadFolder := "uploads/"
+
+	// check the folder if it exist
+	if err := os.MkdirAll(uploadFolder, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	fileName := uuid.New().String() + "." + fileExtension
+	dbFileName := uploadFolder + fileName
+
+	// save image
+	err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Create
 	candidate := models.Candidate{
 		Name:             body.Name,
+		Avatar:           dbFileName,
 		Email:            body.Email,
 		JobDescriptionID: body.JobDescriptionID,
 		ReqheadcountID:   body.ReqheadcountID,
@@ -99,114 +135,6 @@ func CandidateShow(c *gin.Context) {
 	})
 }
 
-func UpdateAvatarCandidate(c *gin.Context) {
-	// Get id
-	id := c.Param("id")
-
-	// Find the data
-	var candidate models.Candidate
-	err := db.DB.First(&candidate, "ID = ?", id).Error
-
-	if err != nil {
-		errors.Is(err, gorm.ErrRecordNotFound)
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "record not found",
-		})
-		return
-	}
-
-	file, ok := c.FormFile("Avatar")
-	var newFileName string
-	var dbFileName string
-
-	if ok == nil {
-
-		if candidate.Avatar != "" {
-			// Define the path of the file to be deleted
-			filePath := filepath.Join(candidate.Avatar)
-			// Delete the file from the server
-			err := os.Remove(filePath)
-
-			if err != nil {
-				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete file from upload folder"})
-				return
-			}
-		}
-
-		ext := filepath.Ext(file.Filename)
-		newFileName = uuid.New().String() + ext
-		if err := c.SaveUploadedFile(file, "uploads/candidate/"+newFileName); err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"message": "Unable to save the file",
-			})
-			return
-		}
-	}
-
-	dbFileName = "uploads/candidate/" + newFileName
-
-	// Update
-	db.DB.Model(&candidate).Updates(models.Employee{
-		Avatar: dbFileName,
-	})
-
-	// Respond
-	c.JSON(http.StatusOK, gin.H{
-		"message": "avatar upload success",
-	})
-}
-
-func GetAvatarCandidate(c *gin.Context) {
-	id := c.Param("id")
-
-	// Find the data
-	var candidate models.Candidate
-	err := db.DB.First(&candidate, "ID = ?", id).Error
-
-	if err != nil {
-		errors.Is(err, gorm.ErrRecordNotFound)
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "record not found",
-		})
-		return
-	}
-
-	if candidate.Avatar != "" {
-
-		fileName := strings.Replace(candidate.Avatar, "uploads/candidate/", "", 1)
-
-		filePath := candidate.Avatar
-		// Open the file
-		fileData, err := os.Open(filePath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open file"})
-			return
-		}
-		defer fileData.Close()
-		// Read the first 512 bytes of the file to determine its content type
-		fileHeader := make([]byte, 512)
-		_, err = fileData.Read(fileHeader)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read file"})
-			return
-		}
-		fileContentType := http.DetectContentType(fileHeader)
-		// Get the file info
-		fileInfo, err := fileData.Stat()
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get file info"})
-			return
-		}
-		// Set the headers for the file transfer and return the file
-		c.Header("Content-Description", "File Transfer")
-		c.Header("Content-Transfer-Encoding", "binary")
-		c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
-		c.Header("Content-Type", fileContentType)
-		c.Header("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
-		c.File(filePath)
-	}
-}
-
 func CandidateUpdate(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
@@ -221,19 +149,62 @@ func CandidateUpdate(c *gin.Context) {
 
 	// Find the data
 	var candidate models.Candidate
-	err := db.DB.First(&candidate, "ID = ?", id).Error
+	ok := db.DB.First(&candidate, "ID = ?", id).Error
 
-	if err != nil {
-		errors.Is(err, gorm.ErrRecordNotFound)
+	if ok != nil {
+		errors.Is(ok, gorm.ErrRecordNotFound)
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "record not found",
 		})
 		return
 	}
 
+	if candidate.Avatar != "" {
+		// Define the path of the file to be deleted
+		filePath := filepath.Join(candidate.Avatar)
+		// Delete the file from the server
+		err := os.Remove(filePath)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete file from upload folder"})
+			return
+		}
+	}
+
+	// decode
+	b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
+	imageData, err := base64.StdEncoding.DecodeString(b64data)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// validation image file
+	fileType := http.DetectContentType(imageData)
+	if !strings.HasPrefix(fileType, "image/") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+		return
+	}
+
+	// extension & folder
+	fileExtension := strings.TrimPrefix(fileType, "image/")
+	uploadFolder := "uploads/"
+
+	fileName := uuid.New().String() + "." + fileExtension
+
+	// save image
+	err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	dbFileName := uploadFolder + fileName
+
 	// Update
 	db.DB.Model(&candidate).Updates(models.Candidate{
 		Name:             body.Name,
+		Avatar:           dbFileName,
 		Email:            body.Email,
 		JobDescriptionID: body.JobDescriptionID,
 		ReqheadcountID:   body.ReqheadcountID,

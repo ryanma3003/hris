@@ -30,6 +30,7 @@ func main() {
 	}))
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	router.Static("/uploads", "./uploads")
 
 	v1 := router.Group("/v1")
 	{

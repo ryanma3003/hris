@@ -29,10 +29,6 @@ func InitializeRoutesEmployee(g *gin.RouterGroup) {
 		g.PUT("/avatar/:id", controllers.UpdateAvatar)
 		g.GET("/avatar/:id", controllers.GetAvatar)
 
-		// upload avatar candidate
-		g.PUT("/avatar-candidate/:id", controllers.UpdateAvatarCandidate)
-		g.GET("/avatar-candidate/:id", controllers.GetAvatarCandidate)
-
 		// grade
 		g.GET("/grades", controllers.GradeIndex)
 		g.POST("/grade", middleware.Authorize("resource", "*"), controllers.GradeCreate)
