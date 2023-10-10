@@ -15,12 +15,23 @@ func InitializeRoutesEmployee(g *gin.RouterGroup) {
 		g.PUT("/emp/:id", controllers.EmployeeUpdate)
 		g.DELETE("/emp/:id", middleware.Authorize("resource", "*"), controllers.EmployeeDelete)
 
+		// candidate
+		g.GET("/cans", controllers.CandidateIndex)
+		g.POST("/can", controllers.CandidateCreate)
+		g.GET("/can/:id", controllers.CandidateShow)
+		g.PUT("/can/:id", controllers.CandidateUpdate)
+		g.DELETE("/can/:id", middleware.Authorize("resource", "*"), controllers.CandidateDelete)
+
 		// role
 		g.GET("/roles", controllers.RoleIndex)
 
 		// upload avatar
 		g.PUT("/avatar/:id", controllers.UpdateAvatar)
 		g.GET("/avatar/:id", controllers.GetAvatar)
+
+		// upload avatar candidate
+		g.PUT("/avatar-candidate/:id", controllers.UpdateAvatarCandidate)
+		g.GET("/avatar-candidate/:id", controllers.GetAvatarCandidate)
 
 		// grade
 		g.GET("/grades", controllers.GradeIndex)

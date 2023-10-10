@@ -5,7 +5,7 @@ import "gorm.io/gorm"
 type Mpp struct {
 	gorm.Model
 	EmployeeID    int64          `json:"employeeid"`
-	Employee      Employee       `gorm:"references:EmployeeId"`
+	Employee      Employee       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:NO ACTION;"`
 	Period        string         `json:"period"`
 	DivisionID    uint           `json:"divisionid"`
 	Division      Division       `gorm:"foreignKey:DivisionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`

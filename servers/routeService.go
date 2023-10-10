@@ -6,33 +6,33 @@ import (
 )
 
 func InitializeRoutesService(g *gin.RouterGroup) {
-	g.GET("/", controllers.PaidleaveIndex)
-	g.GET("/:id", controllers.PaidleaveShow)
-	g.POST("/create", controllers.PaidleaveCreate)
-	g.PUT("/update/:id", controllers.PaidleaveUpdate)
-	g.DELETE("/delete/:id", controllers.PaidleaveDelete)
+	g.GET("/paidleaves", controllers.PaidleaveIndex)
+	g.GET("/paidleave/:id", controllers.PaidleaveShow)
+	g.POST("/paidleave/create", controllers.PaidleaveCreate)
+	g.PUT("/paidleave/update/:id", controllers.PaidleaveUpdate)
+	g.DELETE("/paidleave/delete/:id", controllers.PaidleaveDelete)
 
 	// Tambahkan endpoint baru untuk melihat jumlah data cuti dengan Status=1 untuk setiap NikID
-	g.GET("/count-status/:nikid", controllers.PaidleaveCountStatus)
+	g.GET("/count-status/:id", controllers.PaidleaveCountStatus)
 
 	// Loan
-	g.GET("/", controllers.LoanIndex)
-	g.GET("/:id", controllers.LoanShow)
-	g.POST("/create", controllers.LoanCreate)
-	g.PUT("/update/:id", controllers.LoanUpdate)
-	g.DELETE("/delete/:id", controllers.LoanDelete)
+	g.GET("/loans", controllers.LoanIndex)
+	g.GET("/loan/:id", controllers.LoanShow)
+	g.POST("/loan/create", controllers.LoanCreate)
+	g.PUT("/loan/update/:id", controllers.LoanUpdate)
+	g.DELETE("/loan/delete/:id", controllers.LoanDelete)
 
 	// Insurance
-	g.GET("/", controllers.InsuranceIndex)
-	g.GET("/:id", controllers.InsuranceShow)
-	g.POST("/create", controllers.InsuranceCreate)
-	g.PUT("/update/:id", controllers.InsuranceUpdate)
-	g.DELETE("/delete/:id", controllers.InsuranceDelete)
+	g.GET("/insurances", controllers.InsuranceIndex)
+	g.GET("/insurance/:id", controllers.InsuranceShow)
+	g.POST("/insurance/create", controllers.InsuranceCreate)
+	g.PUT("/insurance/update/:id", controllers.InsuranceUpdate)
+	g.DELETE("/insurance/delete/:id", controllers.InsuranceDelete)
 
 	// Asset
-	g.GET("/", controllers.AssetIndex)
-	g.GET("/:id", controllers.AssetShow)
-	g.POST("/create", controllers.CreateAsset)
-	g.PUT("/update/:id", controllers.AssetUpdate)
-	g.DELETE("/delete/:id", controllers.AssetDelete)
+	g.GET("/assets", controllers.AssetIndex)
+	g.GET("/asset/:id", controllers.AssetShow)
+	g.POST("/asset/create", controllers.CreateAsset)
+	g.PUT("/asset/update/:id", controllers.AssetUpdate)
+	g.DELETE("/asset/delete/:id", controllers.AssetDelete)
 }

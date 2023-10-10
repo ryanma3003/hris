@@ -18,7 +18,7 @@ func ListMpp(c *gin.Context) {
 	period := c.Param("period")
 
 	var mpps []models.Mpp
-	err := db.DB.Where("employee_id = ? AND year = ?", employeeid, period).Find(&mpps).Error
+	err := db.DB.Where("employee_id = ? AND period = ?", employeeid, period).Find(&mpps).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)

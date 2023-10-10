@@ -80,6 +80,25 @@ func CandidateCreate(c *gin.Context) {
 	})
 }
 
+func CandidateShow(c *gin.Context) {
+	id := c.Param("id")
+
+	var candidate models.Candidate
+	err := db.DB.Preload("JobDescription").Preload("Reqheadcount").First(&candidate, "ID = ?", id).Error
+
+	if err != nil {
+		errors.Is(err, gorm.ErrRecordNotFound)
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "record not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": candidate,
+	})
+}
+
 func UpdateAvatarCandidate(c *gin.Context) {
 	// Get id
 	id := c.Param("id")
@@ -116,7 +135,7 @@ func UpdateAvatarCandidate(c *gin.Context) {
 
 		ext := filepath.Ext(file.Filename)
 		newFileName = uuid.New().String() + ext
-		if err := c.SaveUploadedFile(file, "uploads/"+newFileName); err != nil {
+		if err := c.SaveUploadedFile(file, "uploads/candidate/"+newFileName); err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"message": "Unable to save the file",
 			})
@@ -154,7 +173,7 @@ func GetAvatarCandidate(c *gin.Context) {
 
 	if candidate.Avatar != "" {
 
-		fileName := strings.Replace(candidate.Avatar, "uploads/", "", 1)
+		fileName := strings.Replace(candidate.Avatar, "uploads/candidate/", "", 1)
 
 		filePath := candidate.Avatar
 		// Open the file
