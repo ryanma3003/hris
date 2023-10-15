@@ -40,39 +40,42 @@ func CandidateCreate(c *gin.Context) {
 		return
 	}
 
-	// decode
-	b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
-	imageData, err := base64.StdEncoding.DecodeString(b64data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	var dbFileName string
+	if body.Avatar != "" {
+		// decode
+		b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
+		imageData, err := base64.StdEncoding.DecodeString(b64data)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-	// validation image file
-	fileType := http.DetectContentType(imageData)
-	if !strings.HasPrefix(fileType, "image/") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
-		return
-	}
+		// validation image file
+		fileType := http.DetectContentType(imageData)
+		if !strings.HasPrefix(fileType, "image/") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+			return
+		}
 
-	// extension & folder
-	fileExtension := strings.TrimPrefix(fileType, "image/")
-	uploadFolder := "uploads/"
+		// extension & folder
+		fileExtension := strings.TrimPrefix(fileType, "image/")
+		uploadFolder := "uploads/"
 
-	// check the folder if it exist
-	if err := os.MkdirAll(uploadFolder, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+		// check the folder if it exist
+		if err := os.MkdirAll(uploadFolder, os.ModePerm); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-	fileName := uuid.New().String() + "." + fileExtension
-	dbFileName := uploadFolder + fileName
+		fileName := uuid.New().String() + "." + fileExtension
+		dbFileName = uploadFolder + fileName
 
-	// save image
-	err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		// save image
+		err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 	}
 
 	// Create
@@ -159,52 +162,55 @@ func CandidateUpdate(c *gin.Context) {
 		return
 	}
 
-	if candidate.Avatar != "" {
-		// Define the path of the file to be deleted
-		filePath := filepath.Join(candidate.Avatar)
-		// Delete the file from the server
-		err := os.Remove(filePath)
-
+	if body.Avatar != candidate.Avatar {
+		// decode
+		b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
+		imageData, err := base64.StdEncoding.DecodeString(b64data)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete file from upload folder"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
+		// validation image file
+		fileType := http.DetectContentType(imageData)
+		if !strings.HasPrefix(fileType, "image/") {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+			return
+		}
+
+		// extension & folder
+		fileExtension := strings.TrimPrefix(fileType, "image/")
+		uploadFolder := "uploads/"
+
+		fileName := uuid.New().String() + "." + fileExtension
+
+		// save image
+		err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		if candidate.Avatar != "" {
+			// Define the path of the file to be deleted
+			filePath := filepath.Join(candidate.Avatar)
+			// Delete the file from the server
+			err := os.Remove(filePath)
+
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete file from upload folder"})
+				return
+			}
+		}
+
+		dbFileName := uploadFolder + fileName
+		body.Avatar = dbFileName
 	}
-
-	// decode
-	b64data := body.Avatar[strings.IndexByte(body.Avatar, ',')+1:]
-	imageData, err := base64.StdEncoding.DecodeString(b64data)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// validation image file
-	fileType := http.DetectContentType(imageData)
-	if !strings.HasPrefix(fileType, "image/") {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
-		return
-	}
-
-	// extension & folder
-	fileExtension := strings.TrimPrefix(fileType, "image/")
-	uploadFolder := "uploads/"
-
-	fileName := uuid.New().String() + "." + fileExtension
-
-	// save image
-	err = os.WriteFile(filepath.Join(uploadFolder, fileName), imageData, 0644)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	dbFileName := uploadFolder + fileName
 
 	// Update
 	db.DB.Model(&candidate).Updates(models.Candidate{
 		Name:             body.Name,
-		Avatar:           dbFileName,
+		Avatar:           body.Avatar,
 		Email:            body.Email,
 		JobDescriptionID: body.JobDescriptionID,
 		ReqheadcountID:   body.ReqheadcountID,

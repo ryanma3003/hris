@@ -104,7 +104,7 @@ type Candidate struct {
 	Willing          string         `json:"willing"`
 	CompKnowledge    string         `json:"compknowledge"`
 	WantJoin         string         `json:"wantjoin"`
-	Status           int            `json:"status"`
+	Status           int            `json:"status,omitempty"`
 	Families         []Family
 	Educations       []Education
 	Experiences      []Experience

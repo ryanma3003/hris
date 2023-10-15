@@ -131,16 +131,38 @@ func GenerateSlip(c *gin.Context) {
 
 // Show List Period
 func SalarySlipShow(c *gin.Context) {
-	period := c.Param("period")
-
+	period := c.Query("period")
+	status := c.Query("status")
+	name := c.Query("name")
 	var SalarySlip []models.SalarySlip
-	err := db.DB.Find(&SalarySlip, "period = ?", period).Error
-	if err != nil {
-		errors.Is(err, gorm.ErrRecordNotFound)
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "record not found",
+
+	err := db.DB
+	if period != "" {
+		err = err.Preload("Employee").Find(&SalarySlip, "period = ?", period)
+	} else {
+		err = err.Preload("Employee").Find(&SalarySlip)
+	}
+
+	if status != "" {
+		err = err.Where("status = ?", status).Preload("Employee").Find(&SalarySlip)
+	} else {
+		err = err.Preload("Employee").Find(&SalarySlip)
+	}
+
+	if name != "" {
+		err = err.Preload("Employee", func(db *gorm.DB) *gorm.DB {
+			return db.Where("name LIKE ?", "%"+name+"%")
+		}).Find(&SalarySlip)
+	} else {
+		err = err.Preload("Employee").Find(&SalarySlip)
+	}
+
+	err.Find(&SalarySlip)
+
+	if err.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error,
 		})
-		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -285,7 +307,7 @@ func SalarySlipUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": salarySlip,
+		"message": "update success",
 	})
 }
 
@@ -335,7 +357,7 @@ func SalarySlipDetailUpdate(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": salarySlipDetail,
+		"data": "update success",
 	})
 }
 
