@@ -38,7 +38,7 @@ func Authorize(obj string, act string) gin.HandlerFunc {
 
 			// Find the user
 			var user models.User
-			db.DB.First(&user, claims["sub"])
+			db.DB.Preload("Employee").First(&user, claims["sub"])
 
 			if user.ID == 0 {
 				c.AbortWithStatus(http.StatusUnauthorized)
@@ -46,8 +46,13 @@ func Authorize(obj string, act string) gin.HandlerFunc {
 
 			// Attach to req
 			c.Set("user", user.Username)
-			// c.Set("uid", user.NikID)
+			c.Set("id", user.EmployeeID)
 			c.Set("urole", user.Role)
+			c.Set("division", user.Employee.DivisionID)
+			c.Set("department", user.Employee.DepartmentID)
+			c.Set("supervision", user.Employee.SupervisionID)
+			c.Set("level", user.Employee.LevelID)
+			c.Set("grade", user.Employee.GradeID)
 
 			val, existed := c.Get("user")
 			if !existed {

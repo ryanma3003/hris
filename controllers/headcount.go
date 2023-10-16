@@ -14,18 +14,29 @@ import (
 // ======================================================================================================
 // ======================================================================================================
 func ListMpp(c *gin.Context) {
-	employeeid := c.Param("employeeid")
-	period := c.Param("period")
+	division := c.Query("division")
+	period := c.Query("period")
 
 	var mpps []models.Mpp
-	err := db.DB.Where("employee_id = ? AND period = ?", employeeid, period).Find(&mpps).Error
+	err := db.DB
+	if division != "" {
+		err = err.Where("extract('year' from TO_DATE(period, 'YYYY-MM')::DATE) = ?", period).Preload("Employee.Level").Preload("Employee.Division")
+	} else {
+		err = err.Preload("Employee.Level").Preload("Employee.Division")
+	}
 
-	if err != nil {
-		errors.Is(err, gorm.ErrRecordNotFound)
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "record not found",
+	if period != "" {
+		err = err.Where("division_id = ?", division).Preload("Employee.Level").Preload("Employee.Division")
+	} else {
+		err = err.Preload("Employee.Level").Preload("Employee.Division")
+	}
+
+	err.Find(&mpps)
+
+	if err.Error != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error,
 		})
-		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -194,7 +205,7 @@ func UpdateHeadcount(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": "Updated Success",
+		"message": "Updated Success",
 	})
 }
 
@@ -227,7 +238,7 @@ func ApproveReqHeadcount(c *gin.Context) {
 
 	// Respond
 	c.JSON(http.StatusOK, gin.H{
-		"data": "Approved Success",
+		"message": "Approved Success",
 	})
 }
 
