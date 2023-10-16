@@ -172,11 +172,10 @@ func SalarySlipShow(c *gin.Context) {
 
 // Show Detail
 func SalarySlipDetailShow(c *gin.Context) {
-	period := c.Param("period")
-	employeeID := c.Param("id")
+	id := c.Param("id")
 
-	var SalarySlip []models.SalarySlip
-	err := db.DB.Where("period = ? AND employee_id = ?", period, employeeID).Preload("SalarySlipDetails").Find(&SalarySlip).Error
+	var SalarySlip models.SalarySlip
+	err := db.DB.Preload("SalarySlipDetails").Preload("Employee.Division").Preload("Employee.Department").Preload("Employee.Supervision").Preload("Employee.Level").Find(&SalarySlip, "id = ?", id).Error
 
 	if err != nil {
 		errors.Is(err, gorm.ErrRecordNotFound)

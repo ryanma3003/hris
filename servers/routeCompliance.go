@@ -9,7 +9,7 @@ import (
 func InitializeRoutesCompliance(g *gin.RouterGroup) {
 	g.GET("/GenerateSlip", middleware.Authorize("resource", "*"), controllers.GenerateSlip)
 	g.GET("/ListSlip", middleware.Authorize("resource", "*"), controllers.SalarySlipShow)
-	g.GET("/ListSlipDetail/:period/:id", middleware.Authorize("resource", "*"), controllers.SalarySlipDetailShow)
+	g.GET("/ListSlipDetail/:id", middleware.Authorize("resource", "*"), controllers.SalarySlipDetailShow)
 	g.POST("/CreateSlip/", middleware.Authorize("resource", "*"), controllers.SalarySlipCreate)
 	g.POST("/CreateSlipDetail/", middleware.Authorize("resource", "*"), controllers.SalarySlipDetailCreate)
 	g.PUT("/UpdateSlip/:id", middleware.Authorize("resource", "*"), controllers.SalarySlipUpdate)
